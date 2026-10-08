@@ -357,6 +357,13 @@ class TestGlm47SchemaTypes(unittest.TestCase):
             {"value": "hello"},
         )
 
+    def test_bare_comma_value_is_not_split_into_an_array(self):
+        """#43147: "1,000" for a number arg reached the tool as [1, 0]."""
+        self.check_arguments(
+            {"type": "object", "properties": {"n": {"type": "number"}}},
+            {"n": "1,000"},
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

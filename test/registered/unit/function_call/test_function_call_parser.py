@@ -3308,6 +3308,22 @@ class TestGlm4MoeDetector(unittest.TestCase):
         self.assertIsInstance(value, dict)
         self.assertEqual(value, {"pattern": "\\d+"})
 
+    def test_parse_arguments_bare_comma_is_not_a_tuple(self):
+        """A bare comma made Strategy 3's literal_eval return a tuple, so the
+        tool got "1,000" as [1, 0]. Non-array args must keep the raw string;
+        array args keep the list. See #43147."""
+        from sglang.srt.function_call import glm4_moe_detector, glm47_moe_detector
+
+        for module in (glm4_moe_detector, glm47_moe_detector):
+            parse_arguments = module.parse_arguments
+            with self.subTest(module=module.__name__):
+                self.assertEqual(parse_arguments("1,000", "number"), ("1,000", True))
+                self.assertEqual(
+                    parse_arguments('"a","b"', "object"), ('"a","b"', True)
+                )
+                self.assertEqual(parse_arguments("1,000"), ("1,000", True))
+                self.assertEqual(parse_arguments("1, 2", "array"), ([1, 2], True))
+
 
 class TestGlm47MoeDetector(unittest.TestCase):
     def setUp(self):
