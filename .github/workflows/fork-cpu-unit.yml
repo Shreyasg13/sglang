@@ -1,0 +1,39 @@
+# Fork-only: run the diffusion residency unit tests on CPU. Not for upstream.
+name: fork-cpu-unit
+on:
+  push:
+    branches: ["test-run/**"]
+jobs:
+  unit:
+    if: github.repository_owner == 'Shreyasg13'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [branch, main]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 3
+      - name: Use main's source with this branch's tests (expect new tests to fail)
+        if: matrix.source == 'main'
+        run: |
+          git fetch --depth=1 https://github.com/sgl-project/sglang.git 5cbf949
+          git checkout FETCH_HEAD -- python/sglang/multimodal_gen/runtime
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: |
+          uv venv /tmp/venv && . /tmp/venv/bin/activate
+          uv pip install torch==2.11.0 torchvision --index-url https://download.pytorch.org/whl/cpu
+          uv pip install -e python --no-deps
+          uv pip install pytest numpy pillow safetensors "transformers>=4.57" diffusers==0.37.0 accelerate \
+            huggingface_hub pydantic fastapi uvicorn requests aiohttp psutil pyzmq msgspec orjson einops \
+            imageio imageio-ffmpeg av opencv-python-headless PyYAML addict cloudpickle msgpack websockets \
+            setproctitle sentencepiece protobuf tqdm packaging remote-pdb uvloop python-multipart
+      - name: Test
+        run: |
+          . /tmp/venv/bin/activate
+          python -m pytest -q -p no:cacheprovider python/sglang/multimodal_gen/test/unit/test_component_residency.py 2>&1 | tail -80
+          exit ${PIPESTATUS[0]}
