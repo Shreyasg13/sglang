@@ -18,7 +18,7 @@ jobs:
       - name: Use main's source with this branch's tests (expect new tests to fail)
         if: matrix.source == 'main'
         run: |
-          git fetch --depth=1 https://github.com/sgl-project/sglang.git 5cbf949
+          git fetch --depth=1 https://github.com/sgl-project/sglang.git 5cbf949839b1fc73802d20670943ccbeb805d3f2
           git checkout FETCH_HEAD -- python/sglang/multimodal_gen/runtime
       - uses: astral-sh/setup-uv@v6
         with:
