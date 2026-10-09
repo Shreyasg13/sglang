@@ -26,7 +26,7 @@ jobs:
       - name: Install
         run: |
           uv venv /tmp/venv && . /tmp/venv/bin/activate
-          uv pip install torch==2.11.0 torchvision --index-url https://download.pytorch.org/whl/cpu
+          uv pip install torch==2.14.1 torchvision --index-url https://download.pytorch.org/whl/cpu
           uv pip install -e python --no-deps
           uv pip install pytest numpy pillow safetensors "transformers>=4.57" diffusers==0.37.0 accelerate \
             huggingface_hub pydantic fastapi uvicorn requests aiohttp psutil pyzmq msgspec orjson einops \
